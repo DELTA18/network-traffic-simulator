@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// frontend/src/App.jsx
 
-function App() {
-  const [count, setCount] = useState(0)
+import { useEffect, useState } from "react";
+import NodeStats from "./components/NodeStats";
+import LinkStats from "./components/LinkStats";
+
+const BACKEND_URL = "http://localhost:3001"; // change for Railway later
+
+export default function App() {
+  const [time, setTime] = useState("08:00");
+  const [data, setData] = useState(null);
+
+  const times = ["08:00", "08:15", "08:30", "08:45"];
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/simulate?time=${time}`)
+      .then((res) => res.json())
+      .then((result) => setData(result))
+      .catch((err) => console.error("Error fetching data:", err));
+
+      console.log(data)
+  }, [time]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="min-h-screen w-full bg-gray-50  font-sans">
+      <h1 className="text-2xl font-bold mb-4 text-center">
+        📊 Network Traffic Simulator
+      </h1>
 
-export default App
+      <div className="flex justify-center mb-6">
+        <label className="mr-2 font-medium">Select Time:</label>
+        <select
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          className="px-3 py-1 border rounded shadow"
+        >
+          {times.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {data ? (
+        <div className="grid gap-8 md:grid-cols-2">
+          <NodeStats stats={data.nodeStats} />
+          <LinkStats stats={data.linkStats} />
+        </div>
+      ) : (
+        <p className="text-center text-gray-500">Loading simulation...</p>
+      )}
+    </div>
+  );
+}
