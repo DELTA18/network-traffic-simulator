@@ -1,6 +1,9 @@
 // backend/simulate.js
-
 const { trafficRates, links, graph } = require("./data");
+
+let currentTimeIndex = 0;
+const times = ["08:00", "08:15", "08:30", "08:45"];
+let currentState = null;
 
 function bfsShortestPath(start, end) {
   const queue = [[start]];
@@ -21,10 +24,24 @@ function bfsShortestPath(start, end) {
     }
   }
 
-  return null; // No path found
+  return null;
 }
 
-function simulateTraffic(time) {
+function getCapacity(a, b) {
+  const link = links.find(
+    (l) =>
+      (l.from === a && l.to === b) || (l.from === b && l.to === a)
+  );
+  return link ? link.capacity : 0;
+}
+
+function randomNode(nodes) {
+  const index = Math.floor(Math.random() * nodes.length);
+  return nodes[index];
+}
+
+//  One-time simulation step
+function simulateOnce(time) {
   const nodes = trafficRates[time];
   if (!nodes) return { error: "Invalid time" };
 
@@ -32,16 +49,14 @@ function simulateTraffic(time) {
   const nodeQueues = {};
   const packets = [];
 
-  // Initialize stats
   links.forEach(({ from, to }) => {
     const key = [from, to].sort().join("-");
     linkUsage[key] = { used: 0, capacity: getCapacity(from, to) };
   });
 
-  // 1. Generate packets
+  // Packet generation
   for (let [source, rate] of Object.entries(nodes)) {
     for (let i = 0; i < rate; i++) {
-      // Pick random destination ≠ source
       let dest;
       do {
         dest = randomNode(Object.keys(nodes));
@@ -51,13 +66,12 @@ function simulateTraffic(time) {
     }
   }
 
-  // 2. Route packets
+  // Packet routing
   for (let packet of packets) {
     const path = bfsShortestPath(packet.source, packet.dest);
     if (!path) continue;
 
     let canTransmit = true;
-
     for (let i = 0; i < path.length - 1; i++) {
       const from = path[i];
       const to = path[i + 1];
@@ -82,7 +96,7 @@ function simulateTraffic(time) {
     }
   }
 
-  // 3. Prepare stats
+  // Stats
   const nodeStats = Object.keys(nodes).map((node) => ({
     node,
     generated: nodes[node],
@@ -102,19 +116,21 @@ function simulateTraffic(time) {
   };
 }
 
-// Helpers
-function randomNode(nodes) {
-  const index = Math.floor(Math.random() * nodes.length);
-  return nodes[index];
+// 🕒 Real-time simulation loop
+function startSimulation() {
+  setInterval(() => {
+    const time = times[currentTimeIndex];
+    currentState = simulateOnce(time);
+    currentTimeIndex = (currentTimeIndex + 1) % times.length;
+  }, 1000); // 1 second tick
 }
 
-function getCapacity(a, b) {
-  const link = links.find(
-    (l) =>
-      (l.from === a && l.to === b) ||
-      (l.from === b && l.to === a)
-  );
-  return link ? link.capacity : 0;
+function getCurrentState() {
+  return currentState || simulateOnce("08:00");
 }
 
-module.exports = simulateTraffic;
+module.exports = {
+  simulateOnce,
+  startSimulation,
+  getCurrentState,
+};

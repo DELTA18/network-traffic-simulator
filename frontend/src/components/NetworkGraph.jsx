@@ -1,66 +1,76 @@
 // frontend/src/components/NetworkGraph.jsx
 
+import ReactFlow, { Background, Controls } from "reactflow";
+import "reactflow/dist/style.css";
+
 export default function NetworkGraph({ links, nodeStats }) {
+  const positions = {
+    A: { x: 0, y: 0 },
+    B: { x: 300, y: 0 },
+    C: { x: 0, y: 300 },
+    D: { x: 300, y: 300 },
+    E: { x: 150, y: 150 },
+  };
+
   const getColor = (used, capacity) => {
     const load = used / capacity;
-    if (load < 0.5) return "#4ade80"; // green
-    if (load < 0.8) return "#facc15"; // yellow
-    return "#ef4444"; // red
+    if (load < 0.5) return "green";
+    if (load < 0.8) return "orange";
+    return "red";
   };
 
-  const positions = {
-    A: { x: 20, y: 20 },
-    B: { x: 80, y: 20 },
-    C: { x: 20, y: 80 },
-    D: { x: 80, y: 80 },
-    E: { x: 50, y: 50 },
-  };
+  const nodes = Object.entries(positions).map(([id, pos]) => {
+    const stats = nodeStats?.find((n) => n.node === id);
+    const label = stats
+      ? `${id}\nGen: ${stats.generated}\nQueue: ${stats.queued}`
+      : id;
+
+    return {
+      id,
+      data: { label: <div className="whitespace-pre">{label}</div> },
+      position: pos,
+      style: {
+        padding: 10,
+        border: "1px solid #ccc",
+        borderRadius: 6,
+        background: "#eef",
+        width: 100,
+        textAlign: "center",
+        fontSize: 12,
+      },
+    };
+  });
+
+  const edges = links.map(({ link, used, capacity }) => {
+    const [source, target] = link.split("-");
+    return {
+      id: link,
+      source,
+      target,
+      animated: true,
+      style: { stroke: getColor(used, capacity), strokeWidth: 2 },
+      label: `${used}/${capacity}`,
+      labelStyle: { fontSize: 10 },
+    };
+  });
 
   return (
-    <div className="bg-white p-4 shadow rounded mt-8 w-full">
-      <h2 className="text-lg font-semibold mb-4 text-purple-600">
-        🌐 Visual Network Graph
+    <div className="bg-white p-4 rounded shadow mt-6" style={{ height: 400 }}>
+      <h2 className="text-lg font-semibold mb-2 text-purple-600">
+        🌐 Network Topology (Interactive)
       </h2>
 
-      <div className="w-full h-[400px] overflow-hidden">
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          {/* Links */}
-          {links.map(({ link, used, capacity }) => {
-            const [from, to] = link.split("-");
-            const start = positions[from];
-            const end = positions[to];
-            const color = getColor(used, capacity);
-
-            return (
-              <line
-                key={link}
-                x1={start.x}
-                y1={start.y}
-                x2={end.x}
-                y2={end.y}
-                stroke={color}
-                strokeWidth="2"
-              />
-            );
-          })}
-
-          {/* Nodes */}
-          {Object.entries(positions).map(([node, { x, y }]) => (
-            <g key={node}>
-              <circle cx={x} cy={y} r="4" fill="#2563eb" />
-              <text
-                x={x}
-                y={y - 6}
-                textAnchor="middle"
-                fontSize="4"
-                fill="#000"
-              >
-                {node}
-              </text>
-            </g>
-          ))}
-        </svg>
-      </div>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        fitView
+        zoomOnScroll={false}
+        panOnScroll
+        proOptions={{ hideAttribution: true }}
+      >
+        <Background />
+        <Controls />
+      </ReactFlow>
     </div>
   );
 }
