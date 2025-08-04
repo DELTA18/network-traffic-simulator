@@ -32,12 +32,9 @@ A real-time simulator for visualizing network traffic across a telecom-style net
 ---
 
 ## 🖥️ Screenshots
+<img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/5b3824b9-e286-4e21-81b1-a2355dcba468" />
 
-### 📊 Charts
-![Node and Link Charts](./screenshots/charts.png)
-
-### 🌐 Network Graph
-![Network Graph](./screenshots/graph.png)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e874fe73-eca5-43dc-8e14-134d63ff256c" />
 
 ---
 
