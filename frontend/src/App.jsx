@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import NodeStats from "./components/NodeStats";
 import LinkStats from "./components/LinkStats";
+import NetworkGraph from "./components/NetworkGraph";
+
 
 const BACKEND_URL = "http://localhost:3001"; // change for Railway later
 
@@ -43,10 +45,17 @@ export default function App() {
       </div>
 
       {data ? (
+        <>
         <div className="grid gap-8 md:grid-cols-2">
           <NodeStats stats={data.nodeStats} />
           <LinkStats stats={data.linkStats} />
         </div>
+        <NetworkGraph
+            links={data.linkStats}
+            nodeStats={data.nodeStats}
+/>
+        </>
+        
       ) : (
         <p className="text-center text-gray-500">Loading simulation...</p>
       )}
