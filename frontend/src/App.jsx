@@ -55,7 +55,7 @@ export default function App() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Node Traffic Chart */}
-            <div className="bg-white p-4 rounded shadow">
+            <div className="bg-white p-2 m-4 rounded-3xl shadow">
               <h2 className="text-lg font-semibold mb-2 text-blue-600">
                 📊 Node Traffic
               </h2>
@@ -72,7 +72,7 @@ export default function App() {
             </div>
 
             {/* Link Utilization Chart */}
-            <div className="bg-white p-4 rounded shadow">
+            <div className="bg-white p-2 m-4 rounded-3xl shadow">
               <h2 className="text-lg font-semibold mb-2 text-green-600">
                 🔗 Link Utilization
               </h2>

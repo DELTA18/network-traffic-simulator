@@ -10,6 +10,8 @@ export default function NetworkGraph({ links, nodeStats }) {
     C: { x: 0, y: 300 },
     D: { x: 300, y: 300 },
     E: { x: 150, y: 150 },
+    F: { x: 450, y: 150 },
+    G: { x: 150, y: 450 },
   };
 
   const getColor = (used, capacity) => {
